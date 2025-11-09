@@ -1,0 +1,61 @@
+name: Multi-Platform Matrix Build with Artifacts
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # ============================================================
+    # 👇 Matrix Strategy
+    # ============================================================
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11']
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # ============================================================
+      # 📦 Checkout Repository
+      # ============================================================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ============================================================
+      # 🧩 Step Identifier (Required)
+      # ============================================================
+      - name: matrix-0050d25
+        run: echo "Running matrix build for OS=${{ matrix.os }} | Python=${{ matrix.python-version }}"
+
+      # ============================================================
+      # 🐍 Set up Python
+      # ============================================================
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # ============================================================
+      # 🏗️ Build / Generate Artifact Content
+      # ============================================================
+      - name: Generate build artifact
+        run: |
+          echo "==================================" > build_output.txt
+          echo "Matrix Build Artifact" >> build_output.txt
+          echo "OS: ${{ matrix.os }}" >> build_output.txt
+          echo "Python: ${{ matrix.python-version }}" >> build_output.txt
+          echo "Build Time: $(date)" >> build_output.txt
+          echo "==================================" >> build_output.txt
+          cat build_output.txt
+
+      # ============================================================
+      # 📤 Upload Artifact
+      # ============================================================
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-0050d25-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: build_output.txt
